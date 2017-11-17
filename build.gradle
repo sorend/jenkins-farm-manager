@@ -1,0 +1,41 @@
+plugins {
+    // Use Docker Java application plugin
+    id 'com.bmuschko.docker-java-application' version '3.2.0'
+    id 'io.ratpack.ratpack-groovy' version '1.5.0'
+    id 'com.github.johnrengelman.shadow' version '2.0.1'
+}
+
+group 'dk.bankdata.devops'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'io.ratpack.ratpack-groovy'
+apply plugin: 'groovy'
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    runtime 'org.slf4j:slf4j-simple:1.7.25'
+    compile 'org.codehaus.groovy:groovy-all:2.4.12'
+    compile 'de.gesellix:docker-client:2017-11-12T15-07-49'
+    compile group: 'com.github.jknack', name: 'handlebars', version: '4.0.6'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4'
+}
+
+docker {
+    url = project.hasProperty('dockerUrl') ?
+            project.getProperty('dockerUrl') :
+            System.env.DOCKER_HOST?.replace('tcp', 'https')
+
+    // Configuration for Java application image.
+    javaApplication {
+        maintainer = "Soren A D <sorend>"
+        // Exposed port.
+        port = 5050
+    }
+}

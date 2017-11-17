@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  jenkins:
+    image: bdusad/jenkins:{{ jenkins.version }}
+    ports:
+      - "{{ jenkins.jnlp_port }}:{{ jenkins.jnlp_port }}"
+    volumes:
+      - "{{ jenkins.home }}:/var/jenkins_home"
+    environment:
+      JENKINS_SLAVE_AGENT_PORT: {{ jenkins.jnlp_port }}
+      JENKINS_EXECUTORS: {{ jenkins.executors }}
+    labels:
+      traefik.port: 8080
+    networks:
+      - frontend-net
+      - slave-net
+{{#each slaves }}
+  slave{{ this }}:
+    image: bdusad/jenkins-swarm-slave:{{ jenkins_swarm.version }}
+    command: -master http://jenkins:8080 -username admin -password admin -executors {{ jenkins_swarm.executors }}
+    networks:
+      - slave-net
+{{/each}}
+networks:
+  frontend-net:
+  slave-net:
